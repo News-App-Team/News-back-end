@@ -13,10 +13,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 const PORT = process.env.PORT;
 const apiKey = process.env.API_KEY;
-// const client = new Client(url);
 app.get('/getNews', getNewsHandler);
 app.post('/addNews', addNewsHandler);
-
+app.put('/updateNews/:id',updateNewsHandler);
 app.get('*', notFoundErrorHandler);
 app.use(errorHandler);
 
@@ -29,7 +28,6 @@ async function getNewsHandler(req, res) {
             return new Event(obj);
         })
         res.json(news);
-        // res.json(result.data.articles);
     } catch {
         (error) => {
             errorHandler(error, req, res);
@@ -43,11 +41,24 @@ function addNewsHandler(req, res) {
     client.query(sql, values)
         .then((result) => {
             res.status(201).json(result.rows);
-
+            
         })
-        .catch(() => {
-
+        .catch((error) => {
+            errorHandler(error, req, res);
         });
+    }
+    
+    function updateNewsHandler(req,res){
+        let newsId = req.params.id;
+        let {comment} = req.body;
+        let sql=`UPDATE news SET comment = $1 
+        WHERE id = $2 RETURNING *;`;
+        let values = [comment,newsId];
+        client.query(sql,values).then(result=>{
+            res.send(result.rows)
+        }) .catch((error) => {
+                errorHandler(error, req, res);
+            });
     }
 
 function errorHandler(error, req, res) {
@@ -67,11 +78,9 @@ function Event(newsObj) {
     this.publishedAt = newsObj.publishedAt;
 }
 
-
 client.connect().then(() => {
     app.listen(PORT, () => {
         console.log(`Welcome to my server ${PORT}`);
     })
-
 })
 
