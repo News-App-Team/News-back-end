@@ -1,5 +1,4 @@
 'use strict';
-
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -16,6 +15,7 @@ const apiKey = process.env.API_KEY;
 app.get('/getNews', getNewsHandler);
 app.post('/addNews', addNewsHandler);
 app.put('/updateNews/:id',updateNewsHandler);
+app.delete('/deleteNews/:id',deleteNewsHandler);
 app.get('*', notFoundErrorHandler);
 app.use(errorHandler);
 
@@ -60,6 +60,18 @@ function addNewsHandler(req, res) {
                 errorHandler(error, req, res);
             });
     }
+        function deleteNewsHandler(req,res)
+        {
+            let {id}= req.params;
+            let sql =`DELETE FROM News WHERE id =$1;`;
+            let value =[id];
+            client.query(sql,value) .then(result =>
+                {res.status(204).send("successfully Deleted")})
+                .catch((error) => {
+                    errorHandler(error, req, res);
+                });
+        
+        }
 
 function errorHandler(error, req, res) {
     res.status(500).send(error);
@@ -78,9 +90,15 @@ function Event(newsObj) {
     this.publishedAt = newsObj.publishedAt;
 }
 
+
+
+
+
+
 client.connect().then(() => {
     app.listen(PORT, () => {
         console.log(`Welcome to my server ${PORT}`);
     })
 })
+
 
