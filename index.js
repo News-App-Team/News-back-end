@@ -16,6 +16,7 @@ app.get('/getNews', getNewsHandler);
 app.post('/addNews', addNewsHandler);
 app.put('/updateNews/:id',updateNewsHandler);
 app.delete('/deleteNews/:id',deleteNewsHandler);
+app.get ('/getDbNews', getDbNewsHandler)
 app.get('*', notFoundErrorHandler);
 app.use(errorHandler);
 
@@ -34,6 +35,20 @@ async function getNewsHandler(req, res) {
         }
     }
 }
+
+function getDbNewsHandler(req, res) {
+    let sql = `SELECT * FROM news;`;
+    client
+        .query(sql)
+        .then((result) => {
+            res.json(result.rows);
+            console.log(result.rows);
+        })
+        .catch(() => {
+            res.status(500).send("Internal server error");
+        });
+}
+
 function addNewsHandler(req, res) {
     let { source, author, title, description, url, image, publishedat, comment } = req.body;
     let sql = `INSERT INTO news(source,author, title, description, url,image,publishedat,comment) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`;
@@ -100,5 +115,13 @@ client.connect().then(() => {
         console.log(`Welcome to my server ${PORT}`);
     })
 })
+
+
+
+
+
+
+
+
 
 
