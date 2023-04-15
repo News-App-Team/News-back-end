@@ -9,5 +9,4 @@
   image VARCHAR(255),
   publishedat VARCHAR(255),
   comment VARCHAR(255)
-   
 );
