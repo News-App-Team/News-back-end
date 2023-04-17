@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 const PORT = process.env.PORT;
 const apiKey = process.env.API_KEY;
-app.get('/getNews', getNewsHandler);
+app.get('/getNews/:source', getNewsHandler);
 app.get ('/getDbNews', getDbNewsHandler)
 app.post('/addNews', addNewsHandler);
 app.put('/updateNews/:id',updateNewsHandler);
@@ -21,8 +21,8 @@ app.get('*', notFoundErrorHandler);
 app.use(errorHandler);
 
 async function getNewsHandler(req, res) {
-
-    let url = `https://newsapi.org/v2/top-headlines?sources=the-washington-post&apiKey=${apiKey}`;
+    let source = req.params.source;
+    let url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${apiKey}`;
     try {
         let result = await axios.get(url);
         let news = result.data.articles.map((obj) => {
